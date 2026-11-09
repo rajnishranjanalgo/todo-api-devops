@@ -1,18 +1,13 @@
 ---
-- name: Install Python runtime and pip
+- name: Install Java runtime
   ansible.builtin.package:
-    name:
-      - python3
-      - python3-pip
-      - python3-venv
+    name: openjdk-17-jre-headless
     state: present
-
 - name: Create application user
   ansible.builtin.user:
     name: "{{ todo_api_user }}"
     system: true
     create_home: false
-
 - name: Create application directory
   ansible.builtin.file:
     path: "{{ todo_api_dir }}"
@@ -20,37 +15,20 @@
     owner: "{{ todo_api_user }}"
     group: "{{ todo_api_user }}"
     mode: '0755'
-
-- name: Copy application source
+- name: Copy built JAR
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../app.py"
-    dest: "{{ todo_api_dir }}/app.py"
+    src: "{{ playbook_dir }}/../target/todo-api.jar"
+    dest: "{{ todo_api_dir }}/todo-api.jar"
     owner: "{{ todo_api_user }}"
     group: "{{ todo_api_user }}"
     mode: '0644'
   notify: Restart todo-api
-
-- name: Copy dependency manifest
-  ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../requirements.txt"
-    dest: "{{ todo_api_dir }}/requirements.txt"
-    mode: '0644'
-  notify: Restart todo-api
-
-- name: Install application packages
-  ansible.builtin.pip:
-    requirements: "{{ todo_api_dir }}/requirements.txt"
-    virtualenv: "{{ todo_api_dir }}/venv"
-    virtualenv_command: python3 -m venv
-  notify: Restart todo-api
-
 - name: Install systemd service
   ansible.builtin.template:
     src: todo-api.service.j2
     dest: /etc/systemd/system/todo-api.service
     mode: '0644'
   notify: Restart todo-api
-
 - name: Enable and start service
   ansible.builtin.systemd:
     name: todo-api

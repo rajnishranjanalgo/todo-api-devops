@@ -1,6 +1,6 @@
 # Todo API DevOps Pipeline
 
-This Flask REST API is one continuous DevOps project: Git and GitHub, Jenkins CI,
+This Java Spring Boot REST API is one continuous DevOps project: Git and GitHub, Jenkins CI,
 Ansible configuration, Docker packaging, and Kubernetes deployment.
 
 ## API
@@ -12,9 +12,8 @@ Ansible configuration, Docker packaging, and Kubernetes deployment.
 ## Local test
 
 ```sh
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-python app.py
+mvn clean package
+java -jar target/todo-api.jar
 curl http://localhost:8080/health
 ```
 
@@ -22,14 +21,14 @@ curl http://localhost:8080/health
 
 Create a Pipeline job, point it at this GitHub repository, and use the included
 `Jenkinsfile`. Configure GitHub webhook or SCM polling to trigger it on every push.
-It tests the app and creates a build-numbered, archived `.tar.gz` artifact.
+It tests the app and archives the built Maven JAR artifact.
 The Docker image is built separately using the commands below.
 
 ## Docker
 
 ```sh
-docker build -t todo-api:latest .
-docker run --rm -p 8080:8080 todo-api:latest
+docker build -t todo-api:java .
+docker run --rm -p 8080:8080 todo-api:java
 curl http://localhost:8080/health
 ```
 
@@ -38,6 +37,7 @@ curl http://localhost:8080/health
 Run from Linux/WSL with Ansible installed:
 
 ```sh
+mvn clean package
 ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --ask-become-pass
 ```
 
@@ -49,7 +49,7 @@ systemd definition changes.
 For Minikube, load the local image before deployment:
 
 ```sh
-minikube image load todo-api:latest
+minikube image load todo-api:java
 kubectl apply -f k8s/
 kubectl get pods
 kubectl scale deployment/todo-api --replicas=5

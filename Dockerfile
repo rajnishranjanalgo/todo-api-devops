@@ -1,14 +1,12 @@
-# Build stage keeps build-time packages out of the final image.
-FROM python:3.12-slim AS builder
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /build
-COPY requirements.txt .
-RUN python -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
-
-FROM python:3.12-slim
+COPY pom.xml .
+COPY src ./src
+RUN mvn -B clean package
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY --from=builder /opt/venv /opt/venv
-COPY app.py .
-ENV PATH="/opt/venv/bin:$PATH" APP_PORT=8080
+COPY --from=build /build/target/todo-api.jar app.jar
+ENV APP_PORT=8080
 EXPOSE 8080
 USER 10001
-CMD ["python", "app.py"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
