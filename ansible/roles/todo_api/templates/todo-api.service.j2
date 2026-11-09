@@ -1,0 +1,13 @@
+[Unit]
+Description=Todo API
+After=network.target
+
+[Service]
+User={{ todo_api_user }}
+WorkingDirectory={{ todo_api_dir }}
+Environment=APP_PORT={{ todo_api_port }}
+ExecStart=/usr/local/bin/gunicorn --bind 0.0.0.0:{{ todo_api_port }} app:app
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

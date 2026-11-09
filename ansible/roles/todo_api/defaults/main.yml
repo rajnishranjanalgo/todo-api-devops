@@ -1,0 +1,4 @@
+---
+todo_api_port: 8080
+todo_api_user: todoapi
+todo_api_dir: /opt/todo-api
