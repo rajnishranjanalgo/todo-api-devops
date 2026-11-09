@@ -22,8 +22,8 @@ curl http://localhost:8080/health
 
 Create a Pipeline job, point it at this GitHub repository, and use the included
 `Jenkinsfile`. Configure GitHub webhook or SCM polling to trigger it on every push.
-It tests the app, creates an archived `.tar.gz` artifact, and builds a Docker image
-tagged using the commit SHA or Jenkins build number.
+It tests the app and creates a build-numbered, archived `.tar.gz` artifact.
+The Docker image is built separately using the commands below.
 
 ## Docker
 
